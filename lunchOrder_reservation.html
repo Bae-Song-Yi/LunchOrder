@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>런치오더</title>
+    <link rel="stylesheet" href="css/palette.css" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/common.css" />
+    <link rel="stylesheet" href="css/lunchOrder.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="container lunch-order-container">
+        <div class="text-wrap">
+          <div>
+            <span>아트타워</span>
+            <h1>런치오더</h1>
+            <p>
+              더 쉬워진 식단 신청하기<br />
+              지금 만나보세요
+            </p>
+          </div>
+          <div>
+            <img src="img/qr_code.png" />
+            <b>런치오더 웹 앱으로 보기</b>
+          </div>
+        </div>
+
+        <div class="order-content reservation-wrap">
+          <div class="top-month">
+            <a href="#" class="prev"><img src="img/icon_arrow_black.png" /></a>
+            <span>2023.11</span>
+            <a href="#" class="next"><img src="img/icon_arrow_black.png" /></a>
+          </div>
+
+          <div class="menu-info"><img src="img/menu_sample.png" /></div>
+
+          <div class="menu-calendar-wrap">
+            <ul class="calendar-tab">
+              <li><a href="#" class="on">일일</a></li>
+              <li><a href="#">일주일</a></li>
+              <li><a href="#">한달</a></li>
+            </ul>
+
+            <div class="calendar-data"></div>
+
+            <ul class="menu-tab">
+              <li><a href="#">일반식</a></li>
+              <li><a href="#">샐러드</a></li>
+              <li><a href="#">샐러드&샌드위치</a></li>
+            </ul>
+            <button>신청하기</button>
+          </div>
+
+          <div class="bottom-navi">
+            <a href="#" class="on">
+              <i><img src="img/icon_bottom_menu1.png" /></i>신청하기
+            </a>
+
+            <a href="#">
+              <i><img src="img/icon_bottom_menu2.png" /></i>신청내역
+            </a>
+            <a href="#">
+              <i><img src="img/icon_bottom_menu3.png" /></i>양도현황
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    //캘린더 타입 선택
+    document.querySelectorAll(".calendar-tab a").forEach(function (event) {
+      event.addEventListener("click", function () {
+        document.querySelectorAll(".calendar-tab a").forEach(function (event) {
+          event.classList.remove("on");
+        });
+
+        this.classList.add("on");
+      });
+    });
+  </script>
+</html>
