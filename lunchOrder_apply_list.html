@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>런치오더</title>
+    <link rel="stylesheet" href="css/palette.css" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/common.css" />
+    <link rel="stylesheet" href="css/lunchOrder.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="container lunch-order-container">
+        <div class="text-wrap">
+          <div>
+            <span>아트타워</span>
+            <h1>런치오더</h1>
+            <p>
+              더 쉬워진 식단 신청하기<br />
+              지금 만나보세요
+            </p>
+          </div>
+          <div>
+            <img src="img/qr_code.png" />
+            <b>런치오더 웹 앱으로 보기</b>
+          </div>
+        </div>
+
+        <div class="order-content apply-list">
+          <div class="top-month">
+            <a href="#" class="prev"><img src="img/icon_arrow_black.png" /></a>
+            <span>2023.11</span>
+            <a href="#" class="next"><img src="img/icon_arrow_black.png" /></a>
+          </div>
+
+          <div class="calendar-wrap">
+            <div class="calendar-date"></div>
+            <div class="menu-mark">
+              <span>일반식</span>
+              <span>샐러드</span>
+              <span>샐&샌</span>
+            </div>
+            <a href="#" class="more"></a>
+          </div>
+
+          <ul class="list-wrap">
+            <li>
+              <b>23일(목)</b>
+              <div>
+                <p>샐러드&샌드위치 <i>신청완료</i></p>
+                <a href="#">신청변경</a>
+              </div>
+            </li>
+            <li>
+              <b>23일(목)</b>
+              <div>
+                <p>일반식 <i>신청완료</i></p>
+                <a href="#">신청변경</a>
+              </div>
+            </li>
+          </ul>
+
+          <div class="bottom-navi">
+            <a href="#">
+              <i><img src="img/icon_bottom_menu1.png" /></i>신청하기
+            </a>
+
+            <a href="#" class="on">
+              <i><img src="img/icon_bottom_menu2.png" /></i>신청내역
+            </a>
+            <a href="#">
+              <i><img src="img/icon_bottom_menu3.png" /></i>양도현황
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    //캘린더 생성
+    let currentDate = new Date();
+
+    // 달력 생성 함수
+    let showFullCalendar = false; // 전체 달력 표시 여부
+
+    // 달력 생성 함수
+    function createCalendar(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      // 오늘 날짜 정보
+      const today = new Date();
+      const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+      const todayDate = today.getDate();
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      let calendarHtml = `
+    <table class="${showFullCalendar ? "full-calendar" : ""}">
+      <thead>
+        <tr>
+          <th class="disabled">일</th>
+          <th>월</th>
+          <th>화</th>
+          <th>수</th>
+          <th>목</th>
+          <th>금</th>
+          <th class="disabled">토</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+      let day = 1;
+
+      if (showFullCalendar) {
+        // 전체 달력 표시
+        for (let i = 0; i < 6; i++) {
+          let weekHtml = "<tr>";
+
+          for (let j = 0; j < 7; j++) {
+            if (i === 0 && j < firstDay) {
+              // 첫 주의 이전 달 날짜
+              weekHtml += `<td><span class="date-btn disabled">${""}</span></td>`;
+            } else if (day > lastDate) {
+              // 마지막 주의 다음 달 날짜
+              weekHtml += `<td><span class="date-btn disabled">${""}</span></td>`;
+            } else {
+              let dayClass = [];
+              const currentDate = new Date(year, month, day);
+
+              // 주말만 disabled 처리
+              if (j === 0 || j === 6) {
+                dayClass.push("disabled weekend");
+              }
+
+              // 오늘 날짜 클래스 추가
+              if (isCurrentMonth && day === todayDate) {
+                dayClass.push("today");
+              }
+
+              const classString = dayClass.length > 0 ? dayClass.join(" ") : "";
+              weekHtml += `
+            <td>
+              <span class="date-btn ${classString}">${day}</span>
+            </td>
+          `;
+              day++;
+            }
+          }
+          weekHtml += "</tr>";
+          calendarHtml += weekHtml;
+          if (day > lastDate) break;
+        }
+      } else {
+        // 오늘 날짜가 있는 주부터 2주만 표시
+        const todayWeekStart = new Date(today);
+        todayWeekStart.setDate(todayDate - today.getDay());
+
+        for (let week = 0; week < 2; week++) {
+          let weekHtml = "<tr>";
+          let currentDay = new Date(todayWeekStart);
+          currentDay.setDate(currentDay.getDate() + week * 7);
+
+          for (let j = 0; j < 7; j++) {
+            const currentDate = new Date(currentDay);
+            const isCurrentMonthDay = currentDate.getMonth() === month;
+            const dayOfMonth = currentDate.getDate();
+
+            if (!isCurrentMonthDay) {
+              weekHtml += `<td><span class="date-btn disabled">${""}</span></td>`;
+            } else {
+              let dayClass = [];
+
+              // 주말만 disabled 처리
+              if (j === 0 || j === 6) {
+                dayClass.push("disabled weekend");
+              }
+
+              // 오늘 날짜 클래스 추가
+              if (isCurrentMonth && dayOfMonth === todayDate) {
+                dayClass.push("today");
+              }
+
+              const classString = dayClass.length > 0 ? dayClass.join(" ") : "";
+              weekHtml += `
+            <td>
+              <span class="date-btn ${classString}">${dayOfMonth}</span>
+            </td>
+          `;
+            }
+            currentDay.setDate(currentDay.getDate() + 1);
+          }
+          weekHtml += "</tr>";
+          calendarHtml += weekHtml;
+        }
+      }
+
+      calendarHtml += `
+      </tbody>
+    </table>
+  `;
+
+      document.querySelector(".calendar-date").innerHTML = calendarHtml;
+    }
+
+    // 초기 달력 생성
+    createCalendar(currentDate);
+
+    // 이전 달로 이동
+    function prevMonth() {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      createCalendar(currentDate);
+      updateTopMonth();
+    }
+
+    // 다음 달로 이동
+    function nextMonth() {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      createCalendar(currentDate);
+      updateTopMonth();
+    }
+
+    // top-month 이벤트 추가
+    document.querySelector(".top-month .prev").addEventListener("click", function (e) {
+      e.preventDefault();
+      prevMonth();
+    });
+
+    document.querySelector(".top-month .next").addEventListener("click", function (e) {
+      e.preventDefault();
+      nextMonth();
+    });
+
+    // top-month 업데이트 함수
+    function updateTopMonth() {
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+      const topMonthText = document.querySelector(".top-month span");
+      topMonthText.textContent = `${year}.${month}`;
+    }
+
+    // 초기 top-month 설정
+    updateTopMonth();
+
+    // 더보기 버튼 이벤트 추가
+    document.querySelector(".more").addEventListener("click", function (e) {
+      showFullCalendar = !showFullCalendar;
+      createCalendar(currentDate);
+      this.classList.toggle("on");
+      document.querySelector(".calendar-date").classList.toggle("full-calendar");
+      listWrapHT();
+      e.preventDefault();
+    });
+
+    function listWrapHT() {
+      const topMonthHT = document.querySelector(".top-month").clientHeight;
+      const calendarWrapHT = document.querySelector(".calendar-wrap").clientHeight;
+      const listWrapHT = document.querySelector(".list-wrap").clientHeight;
+      const bottomNaviHT = document.querySelector(".bottom-navi").clientHeight;
+
+      document.querySelector(".list-wrap").style.height = `calc(100% - ${topMonthHT + calendarWrapHT + bottomNaviHT}px)`;
+    }
+
+    listWrapHT();
+
+    window.addEventListener("resize", listWrapHT);
+  </script>
+</html>

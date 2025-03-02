@@ -38,19 +38,22 @@
 
           <div class="menu-calendar-wrap">
             <ul class="calendar-tab">
-              <li><a href="#" class="on">일일</a></li>
-              <li><a href="#">일주일</a></li>
-              <li><a href="#">한달</a></li>
+              <li><a href="#" class="on" data-period="daily">일일</a></li>
+              <li><a href="#" data-period="weekly">일주일</a></li>
+              <li><a href="#" data-period="monthly">한달</a></li>
             </ul>
 
-            <div class="calendar-data"></div>
+            <div class="calendar-data">
+              <span class="date"></span>
+              <a href="#" class="icon"><img src="/img/icon_arrow_black.png" /></a>
+            </div>
 
             <ul class="menu-tab">
               <li><a href="#">일반식</a></li>
               <li><a href="#">샐러드</a></li>
               <li><a href="#">샐러드&샌드위치</a></li>
             </ul>
-            <button>신청하기</button>
+            <button class="apply-btn">신청하기</button>
           </div>
 
           <div class="bottom-navi">
@@ -65,21 +68,300 @@
               <i><img src="img/icon_bottom_menu3.png" /></i>양도현황
             </a>
           </div>
+
+          <div class="calendar-popup-wrap">
+            <div class="calendar-popup-inner">
+              <div class="month">
+                <a href="#" class="prev"><img src="img/icon_arrow_black.png" /></a>
+                <span>2023.11</span>
+                <a href="#" class="next"><img src="img/icon_arrow_black.png" /></a>
+              </div>
+
+              <div class="calendar-body">
+                <ul class="calendar-tab">
+                  <li><a href="#" class="on" data-period="daily">일일</a></li>
+                  <li><a href="#" data-period="weekly">일주일</a></li>
+                  <li><a href="#" data-period="monthly">한달</a></li>
+                </ul>
+
+                <div class="calendar-date"></div>
+              </div>
+
+              <div class="buttons">
+                <button class="reset">초기화</button>
+                <button class="confirm">확인</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </body>
 
   <script>
+    //캘린더 생성
+    let currentDate = new Date();
+
+    // 달력 생성 함수
+    function createCalendar(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      // 오늘 날짜 정보
+      const today = new Date();
+      const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
+      const todayDate = today.getDate();
+
+      // 월 표시 업데이트
+      document.querySelectorAll(".month span").forEach((span) => {
+        span.textContent = `${year}.${String(month + 1).padStart(2, "0")}`;
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const nextMonthFirstDay = 1;
+
+      let calendarHtml = `
+        <table>
+          <thead>
+            <tr>
+              <th class="disabled">일</th>
+              <th>월</th>
+              <th>화</th>
+              <th>수</th>
+              <th>목</th>
+              <th>금</th>
+              <th class="disabled">토</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      let day = 1;
+      let nextMonthDay = nextMonthFirstDay;
+
+      for (let i = 0; i < 6; i++) {
+        calendarHtml += "<tr>";
+        for (let j = 0; j < 7; j++) {
+          if (i === 0 && j < firstDay) {
+            // 이전 달 날짜 계산
+            const prevMonthLastDate = new Date(year, month, 0).getDate();
+            const prevMonthDay = prevMonthLastDate - (firstDay - j - 1);
+            const weekendClass = j === 0 || j === 6 ? "disabled weekend" : "disabled";
+            calendarHtml += `<td><span class="date-btn ${weekendClass}">${prevMonthDay}</span></td>`;
+          } else if (day > lastDate) {
+            // 다음 달 날짜 표시
+            const weekendClass = j === 0 || j === 6 ? "disabled weekend" : "disabled";
+            calendarHtml += `<td><span class="date-btn ${weekendClass}">${nextMonthDay}</span></td>`;
+            nextMonthDay++;
+          } else {
+            let dayClass = [];
+
+            // 이전 날짜 비활성화
+            const currentDate = new Date(year, month, day);
+            if (currentDate < today) {
+              dayClass.push("disabled");
+            }
+
+            // 주말 클래스 추가
+            if (j === 0 || j === 6) dayClass.push("disabled weekend");
+
+            // 오늘 날짜 클래스 추가
+            if (isCurrentMonth && day === todayDate) {
+              dayClass.push("today");
+            }
+
+            const classString = dayClass.length > 0 ? dayClass.join(" ") : "";
+
+            calendarHtml += `
+              <td>
+                <span class="date-btn ${classString}">${day}</span>
+              </td>
+            `;
+            day++;
+          }
+        }
+        calendarHtml += "</tr>";
+      }
+
+      calendarHtml += `
+          </tbody>
+        </table>
+      `;
+
+      document.querySelector(".calendar-date").innerHTML = calendarHtml;
+
+      addDateClickEvents();
+    }
+
+    // 이전 달로 이동
+    function prevMonth() {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      createCalendar(currentDate);
+    }
+
+    // 다음 달로 이동
+    function nextMonth() {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      createCalendar(currentDate);
+    }
+
+    // 이벤트 리스너 추가
+    document.querySelectorAll(".month .prev").forEach((btn) => {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        prevMonth();
+      });
+    });
+
+    document.querySelectorAll(".month .next").forEach((btn) => {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        nextMonth();
+      });
+    });
+
+    // 초기 달력 생성
+    createCalendar(currentDate);
+
     //캘린더 타입 선택
     document.querySelectorAll(".calendar-tab a").forEach(function (event) {
+      event.addEventListener("click", function (e) {
+        e.preventDefault();
+        const period = this.getAttribute("data-period");
+
+        // 모든 캘린더 탭에서 같은 data-period를 가진 요소들 선택
+        document.querySelectorAll(`.calendar-tab a[data-period="${period}"]`).forEach(function (tab) {
+          // 먼저 모든 탭에서 'on' 클래스 제거
+          tab
+            .closest(".calendar-tab")
+            .querySelectorAll("a")
+            .forEach((a) => a.classList.remove("on"));
+          // 같은 period를 가진 탭에 'on' 클래스 추가
+          tab.classList.add("on");
+        });
+
+        removeDateSelected();
+      });
+    });
+
+    //메뉴 타입 선택
+    document.querySelectorAll(".menu-tab a").forEach(function (event) {
       event.addEventListener("click", function () {
-        document.querySelectorAll(".calendar-tab a").forEach(function (event) {
+        document.querySelectorAll(".menu-tab a").forEach(function (event) {
           event.classList.remove("on");
         });
 
         this.classList.add("on");
+        applyButtonActive();
       });
     });
+
+    // 날짜 선택 이벤트
+    function addDateClickEvents() {
+      document.querySelectorAll(".calendar-date span").forEach((date) => {
+        date.addEventListener("click", function () {
+          const activeTab = document.querySelector(".calendar-tab a.on");
+          if (!activeTab) return;
+
+          switch (activeTab.getAttribute("data-period")) {
+            case "daily":
+              this.classList.toggle("selected");
+              break;
+            case "weekly":
+              this.closest("tr").classList.toggle("selected");
+              break;
+            case "monthly":
+              const calendarDate = this.closest(".calendar-date");
+              calendarDate.classList.toggle("selected");
+
+              const currentMonthDays = calendarDate.querySelectorAll("td:not(.disabled) span:not(.disabled)");
+              const firstDaySpan = currentMonthDays[0];
+              const lastDaySpan = currentMonthDays[currentMonthDays.length - 1];
+
+              if (calendarDate.classList.contains("selected")) {
+                firstDaySpan.parentElement.classList.add("selected", "first-day");
+                lastDaySpan.parentElement.classList.add("selected", "last-day");
+              } else {
+                firstDaySpan.parentElement.classList.remove("selected", "first-day");
+                lastDaySpan.parentElement.classList.remove("selected", "last-day");
+              }
+              break;
+          }
+        });
+      });
+    }
+
+    //확인 클릭 시
+    document.querySelector(".calendar-popup-inner .confirm").addEventListener("click", function () {
+      const selectedDates = [];
+      const activeTab = document.querySelector(".calendar-tab a.on").getAttribute("data-period");
+      const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+
+      if (activeTab === "daily") {
+        // 일일 선택의 경우
+        document.querySelectorAll(".calendar-date span.selected").forEach((date) => {
+          const selectedDay = date.textContent;
+          const selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), selectedDay);
+          const dayOfWeek = dayNames[selectedDate.getDay()];
+          selectedDates.push(`${selectedDay}(${dayOfWeek})`);
+        });
+      } else if (activeTab === "weekly") {
+        // 주간 선택의 경우
+        document.querySelectorAll(".calendar-date tr.selected").forEach((row) => {
+          const dates = row.querySelectorAll("td:not(.disabled) span:not(.disabled)");
+          const firstDay = dates[0].textContent;
+          const lastDay = dates[dates.length - 1].textContent;
+
+          const firstDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), firstDay);
+          const lastDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), lastDay);
+
+          selectedDates.push(`${firstDay}(${dayNames[firstDate.getDay()]})~${lastDay}(${dayNames[lastDate.getDay()]})`);
+        });
+      } else if (activeTab === "monthly") {
+        // 월간 선택의 경우
+        const allDates = document.querySelectorAll(".calendar-date td:not(.disabled) span:not(.disabled)");
+        const firstDay = allDates[0].textContent;
+        const lastDay = allDates[allDates.length - 1].textContent;
+
+        const firstDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), firstDay);
+        const lastDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), lastDay);
+
+        selectedDates.push(`${firstDay}(${dayNames[firstDate.getDay()]})~${lastDay}(${dayNames[lastDate.getDay()]})`);
+      }
+
+      document.querySelector(".calendar-data .date").textContent = selectedDates.join(", ");
+      document.querySelector(".calendar-popup-wrap").style.display = "none";
+
+      applyButtonActive();
+    });
+
+    //초기화 시
+    document.querySelector(".calendar-popup-inner .reset").addEventListener("click", function () {
+      removeDateSelected();
+    });
+
+    document.querySelector(".calendar-data").addEventListener("click", function () {
+      document.querySelector(".calendar-popup-wrap").style.display = "flex";
+    });
+
+    //선택된 날짜 해제
+    function removeDateSelected() {
+      const selectedSpans = document.querySelectorAll(".calendar-date span.selected");
+      const selectedRows = document.querySelectorAll(".calendar-date tr.selected");
+      const calendarDate = document.querySelector(".calendar-date");
+
+      selectedSpans.forEach((span) => span.classList.remove("selected"));
+      selectedRows.forEach((row) => row.classList.remove("selected"));
+      calendarDate.classList.remove("selected");
+
+      document.querySelectorAll(".first-day, .last-day").forEach((elem) => {
+        elem.classList.remove("first-day", "last-day");
+      });
+    }
+
+    function applyButtonActive() {
+      document.querySelector(".reservation-wrap .apply-btn").classList.toggle("on", document.querySelector(".calendar-data span").textContent !== "" && document.querySelector(".menu-tab a.on"));
+    }
   </script>
 </html>
